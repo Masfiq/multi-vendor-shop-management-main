@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+{% block title %}Dashboard | DigiDen Sales Point{% endblock %}
+{% block content %} 
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endif %}
+<form action="" method="POST">
+  {% csrf_token %}
+    <div class="mt-3 mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" class="form-control" name="username" id="username" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" name="password" id="password" required>
+    </div>
+    <button type="submit" class="btn btn-dark">Login</button>
+</form>
+{% endblock %}

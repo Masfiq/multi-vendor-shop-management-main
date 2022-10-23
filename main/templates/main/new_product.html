@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% block title %}New Product Model | DigiDen Sales Point{% endblock %}
+{% block content %} 
+{% bootstrap_form_errors productform %}
+<form action="" method="post" class="form">
+    {% csrf_token %}
+    {% for field in productform %}
+    <div class="mb-3">{% bootstrap_field field %}</div>     
+    {% endfor %}
+    {% bootstrap_button "Save" button_type="submit" button_class="btn-dark" %}
+</form>
+{% endblock %}

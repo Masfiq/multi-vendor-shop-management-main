@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% block title %}Product Units | DigiDen Sales Point{% endblock %}
+{% block content %} 
+
+{% bootstrap_form_errors unitform %}
+
+<h2>Products Model: {{ productmodel }} </h2>
+        
+
+<!-- Add New Store -->
+
+<form action="" method="post" class="form">
+    {% csrf_token %}
+    {% for field in unitform %}
+    <div class="mb-3">{% bootstrap_field field %}</div>     
+    {% endfor %}
+    {% bootstrap_button "Save" button_type="submit" button_class="btn-dark" %}
+</form>
+
+<!-- Store List -->
+
+<div class="row my-5">
+    <h2>Available Units of {{ productmodel }} </h2>
+    <div class="mb-3">
+        <form action="" method="get" class="form">
+            <div class="row m-auto text-center">
+                {% for field in filter.form %}
+                <div class="col-auto mb-3">
+                    <label for="{{ field.id_for_label  }}">{{ field.label_tag }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div class="col-auto">
+                    <input type="submit" class="btn btn-sm btn-outline-dark" value="Filter"> <a href="{% url 'product_units' productmodel.id %}" class="btn btn-sm btn-outline-dark">Reset</a>
+                </div>
+            </div>        
+        </form>
+    </div>
+    <div class="col">        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product Serial</th>
+                    <th class="text-center">Store</th>
+                    {% if user.is_superuser %}<th class="text-center">Owner</th>{% endif %}
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Additional Info</th>
+                    {% if user.is_superuser %}<th class="text-center">Action</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td>{{ unit.serial }}</td>
+                    <td class="text-center">{{ unit.store }}</td>
+                    {% if user.is_superuser %}<td class="text-center">{{ unit.owner }}</td>{% endif %}
+                    <td class="text-center">{{ unit.status }}</td>
+                    <td class="text-center">{{ unit.short_description }}</td>
+                    {% if user.is_superuser %}<td class="text-center">{% if unit.status == "Available" %}<a href="{% url 'update_unit' unit.id %}" class="btn btn-sm btn-dark">update</a>{% endif %} <a href="{% url 'delete_unit' unit.id %}" class="btn btn-sm btn-danger">delete</a></td>{% endif %}
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No products found for this (product) model</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

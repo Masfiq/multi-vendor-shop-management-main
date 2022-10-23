@@ -1,0 +1,109 @@
+{% extends 'main/base.html' %}
+{% block title %}Investor Dashboard | DigiDen Sales Point{% endblock %}
+{% block content %}     
+<div class="row mt-4 mb-2">
+    <div class="col-md">
+        <div class="card text-center text-light bg-dark mb-3" id="total-orders">
+            <div class="card-header">
+                <h5 class="card-title">Principal</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ investor.balance }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <div class="card text-center text-light bg-dark mb-3" id="orders-delivered">
+            <div class="card-header">
+                <h5 class="card-title">Profit(this month)</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ investor.profit }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <div class="card text-center text-light bg-dark mb-3" id="orders-pending">
+            <div class="card-header">
+                <h5 class="card-title">Stock Count</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ investor.products.count }}</h3>
+            </div>
+        </div>
+	</div>
+</div>
+
+   
+<div class="row mt-4 mb-2">
+    <div class="col-md">
+        <div class="card text-center text-light bg-dark mb-3" id="total-orders">
+            <div class="card-header">
+                <h5 class="card-title">Cash-in Hand</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ cash_in_hand }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <div class="card text-center text-light bg-dark mb-3" id="orders-delivered">
+            <div class="card-header">
+                <h5 class="card-title">Profit(all-time)</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ investor.profit_lifetime }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <div class="card text-center text-light bg-dark mb-3" id="orders-pending">
+            <div class="card-header">
+                <h5 class="card-title">Stock Price</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ stock_price }}</h3>
+            </div>
+        </div>
+	</div>
+</div>
+
+
+<div class="row mb-3">
+    <div class="col">
+        <h2>Products Invested On <sub>[up to 20]</sub></h2>
+        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Store</th>
+                    <th>Product Name</th>
+                    <th>Product Serial</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.store }}</td>
+                    <td>{{ product.product_model }}</td>
+                    <td>{{ product.serial }}</td>
+                </tr>
+                {% empty %}
+                <tr><td class="text-center" colspan="4">You don't have any product invested on</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% if not user.is_superuser %}
+                
+<div class="mt-3 alert alert-dark text-center" role="alert">
+    For any query/suggestion please call +8801992-092141. <br>
+    <small>Information in this page is highly confidential.</small>
+</div>
+{% endif %}
+{% endblock %}

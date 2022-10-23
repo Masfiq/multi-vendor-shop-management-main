@@ -1,0 +1,64 @@
+{% extends 'main/base.html' %}
+{% block title %}Products | DigiDen Sales Point{% endblock %}
+{% block content %} 
+{% include 'main/parts/product_nav.html' %}
+<div class="row my-5">
+    <div class="col">
+        <h2>Products <span class="float-end">
+            <a href="{% url 'new_product' %}" class="btn btn-sm btn-dark">Create New Product</a> 
+        </span></h2>
+        <div class="my-3">
+            <form action="" method="get" class="form">
+                <div class="row">
+                    {% for field in prodfilter.form %}
+                    <div class="col-auto">
+                        <label for="{{ field.id_for_label  }}">{{ field.label_tag }}</label>
+                    </div>
+                    <div class="col-auto">
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <div class="col-auto">
+                        <input type="submit" class="btn btn-sm btn-outline-dark" value="Filter">
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'products' %}" class="btn btn-sm btn-outline-dark">Reset</a>
+                    </div>
+                </div>        
+            </form>
+        </div>
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>SKU</th>
+                    <th>Category</th>
+                    <th class="text-center">Serials</th>
+                    <th class="text-center">InStock</th>
+                    <th class="text-center">Purchase Price</th>
+                    <th class="text-center">Price</th>
+                    {% if user.is_superuser %}<th class="text-center">Action</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.sku }}</td>
+                    <td>{{ product.categories.first }}</td>
+                    <td class="text-center"><a href="{% url 'product_units' product.id %}" class="btn btn-sm btn-outline-dark">view</a></td>
+                    <td class="text-center">{{ product.instock }}</td>
+                    <td class="text-center">{{ product.purchase_price }}</td>
+                    <td class="text-center">{{ product.price }}</td>
+                    {% if user.is_superuser %}<td class="text-center"><a href="{% url 'update_product' product.id %}" class="btn btn-sm btn-dark">edit</a>&nbsp;<a href="{% url 'delete_product' product.id %}" class="btn btn-sm btn-danger">delete</a></td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <td colspan="7" class="text-center">No product found</td>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

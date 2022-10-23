@@ -1,0 +1,44 @@
+{% extends 'main/base.html' %}
+{% block title %}Orders | DigiDen Sales Point{% endblock %}
+{% block content %} 
+<div class="row my-5">
+    <div class="col">
+        <h2>Orders <span class="float-end">
+            <a href="{% url 'new_order' %}" class="btn btn-sm btn-dark">Create New Order</a> 
+        </span></h2>
+        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th class="text-center">Total</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order }}</td>
+                    <td>{{ order.customer }}</td>
+                    <td>{{ order.created_at }}</td>
+                    <td class="text-center">{{ order.total }}</td>
+                    <td class="text-center">{% if order.status == 'PAID' %}
+                        <button class="btn btn-sm btn-success" disabled>{{ order.status }} </button>
+                        {% else %}
+                        <button class="btn btn-sm btn-warning action" disabled>{{ order.status }} </button>
+                        {% endif %}</td>
+                    <td class="text-center"><a href="{% url 'order' order.id %}" class="btn btn-sm btn-dark">view</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No order found!</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

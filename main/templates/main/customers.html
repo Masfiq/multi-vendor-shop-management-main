@@ -1,0 +1,37 @@
+{% extends 'main/base.html' %}
+{% block title %}Customers | DigiDen Sales Point{% endblock %}
+{% block content %} 
+<div class="row my-5">
+    <div class="col">
+        <h2>Customers <span class="float-end">
+            <a href="{% url 'new_customer' %}" class="btn btn-sm btn-dark">Create New Customer</a> 
+        </span></h2>
+        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Phone</th>
+                    <th class="text-center">Group</th>
+                    {% if user.is_superuser %}<th class="text-center">Action</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+               <tr> <td>{{ customer.name }}</td>
+                <td>{{ customer.sex }}</td>
+                <td>{{ customer.phone }}</td>
+                <td class="text-center">{{ customer.age_group }}</td>
+                
+                {% if user.is_superuser %}<td class="text-center"><a href="{% url 'update_customer' customer.id %}" class="btn btn-sm btn-dark">edit</a>&nbsp;<a href="{% url 'delete_customer' customer.id %}" class="btn btn-sm btn-danger">delete</a></td>{% endif %}
+            </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No Customer Found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

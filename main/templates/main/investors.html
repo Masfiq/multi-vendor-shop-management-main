@@ -1,0 +1,50 @@
+{% extends 'main/base.html' %}
+{% block title %}Investors | DigiDen Sales Point{% endblock %}
+{% block content %} 
+<div class="row my-5">
+    <div class="col">
+        <h2>Investors 
+            <span class="float-end">
+            <a href="{% url 'new_investor' %}" class="btn btn-sm btn-dark">Create New Investor</a> 
+            </span>
+        </h2>
+        <form action="{% url 'update_profit_share' %}" class="form" method="POST">
+            {% csrf_token %}
+        <div class="input-group mb-3">
+            <button class="btn btn-dark" type="button">Current Profit Share: {{ profit_share | default:0.0}}%</button> &nbsp;
+            <input type="text" name="profit_share" class="form-control" placeholder="Just provide the decimal value without percent sign, eg, 35.05456" aria-label="Recipient's username with two button addons">
+            <button class="btn btn-dark" type="submit">Update Profit Share</button> &nbsp;
+            <a href="{% url 'release_profit' %}" class="btn btn-dark" type="button">Release Profit</a>
+          </div>
+        </form>
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th class="text-center">Products</th>
+                    <th class="text-center">Balance</th>
+                    <th class="text-center">Profit</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for investor in investors %}
+                <tr>
+                <td>{{ investor.user.first_name }} {{ investor.user.last_name }}</td>
+                <td>{{ investor.phone }}</td>
+                <td class="text-center">{{ investor.instock }} </td>
+                <td class="text-center">{{ investor.balance }}</td>
+                <td class="text-center">{{ investor.profit }}</td>
+                
+                <td class="text-center"><a href="{% url 'investor' investor.id %}" class="btn btn-sm btn-dark">view</a>&nbsp;<a href="{% url 'update_investor' investor.id %}" class="btn btn-sm btn-dark">edit</a>&nbsp;<a href="{% url 'delete_investor' investor.id %}" class="btn btn-sm btn-danger">delete</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No Investor Found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

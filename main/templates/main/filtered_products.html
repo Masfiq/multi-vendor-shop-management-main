@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% block title %}{{owned_by}} | DigiDen Sales Point{% endblock %}
+{% block content %} 
+
+<div class="row my-5">
+    <h2>Available Products : {{ owned_by }} </h2>
+    <div class="col">        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product Serial</th>
+                    <th class="text-center">Store</th>
+                    <th class="text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td>{{ unit.serial }}</td>
+                    <td class="text-center">{{ unit.store }}</td>
+                    <td class="text-center">{{ unit.status }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No products found for this (product) model</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

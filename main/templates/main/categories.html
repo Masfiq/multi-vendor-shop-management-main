@@ -1,0 +1,48 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% block title %}Categories | DigiDen Sales Point{% endblock %}
+{% block content %} 
+
+{% bootstrap_form_errors categoryform %}
+
+<!-- Add New Store -->
+
+<form action="" method="post" class="form">
+    {% csrf_token %}
+    {% for field in categoryform %}
+    <div class="mb-3">{% bootstrap_field field %}</div>     
+    {% endfor %}
+    {% bootstrap_button "Save" button_type="submit" button_class="btn-dark" %}
+</form>
+
+<!-- Store List -->
+
+<div class="row my-5">
+    <div class="col">
+        <h2>Categories <span class="float-end"></h2>
+        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Category</th>
+                    <th class="text-center">Product Models InStock</th>
+                    {% if user.is_superuser %}<th class="text-center">Action</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ category.name }}</td>
+                    <td class="text-center">{{ category.products.count }}</td>
+                    {% if user.is_superuser %}<td class="text-center"><a href="{% url 'delete_category' category.id %}" class="btn btn-sm btn-danger">delete</a></td>{% endif %}
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center">No category found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

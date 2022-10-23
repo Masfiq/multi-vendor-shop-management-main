@@ -1,0 +1,151 @@
+{% extends 'main/base.html' %}
+{% block title %} Order #{{order.id}} | DigiDen Sales Point{% endblock %}
+{% block content %} 
+
+<div class="row justify-content-between mb-3">
+    <!-- customer info block -->
+    <div class="col">
+        <span style="font-weight: bold;">Customer: </span>{{ order.customer.name }}<br>
+        <span style="font-weight: bold;">Address: </span>{{ order.customer.address }}<br>
+        <span style="font-weight: bold;">Phone: </span>{{ order.customer.phone }} 
+        
+    </div>
+    <!-- order date and time -->
+    <div class="col text-end">
+        <span style="font-weight: bold;">Date: </span> {{ order.created_at }}
+    </div>
+</div>
+
+<!-- product list table -->
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <th style="width: 25%;">Product</th>
+            <th style="width: 40%;">Serials</th>
+            <th class="text-center" style="width: 10%;">Rate</th>
+            <th class="text-center" style="width: 10%;">Discount</th>
+            <th class="text-center" style="width: 15%;">Amount</th>
+    </thead>
+    <tbody>
+        {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.product_model }}</td>
+                <td>
+                    {% for unit in item.units.all %}
+                    &gt;&gt; {{ unit.product.serial }} <br>
+                    {% empty %}
+                    Something Wrong, No Serial Found.
+                    {% endfor %}
+                </td>
+                <td class="text-center">{{ item.product_model.price }}</td>
+                <td class="text-center">{{ item.discount }}</td>
+                <td class="text-center">{{ item.amount }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">
+                    There must be something wrong, contact webmaster.
+                </td>
+            </tr>
+        {% endfor %}
+       
+    </tbody>
+</table>
+<!-- price and cost info -->
+<div class="row justify-content-end">
+    <div class="col"></div>
+    <div class="col">
+        <table class="table">
+          <tbody><tr>
+            <th style="width:50%">Gross Amount:</th>
+            <td>{{ order.gross }}</td>
+          </tr> <tr>
+            <th>Discount:</th>
+            <td>{{ order.get_discount }}</td>
+          </tr>
+          <tr>
+            <th>Net Amount:</th>
+            <td>{{ order.total }}</td>
+          </tr>
+          <tr>
+            <th>Payment Status:</th>
+            <td>
+                {% if order.status == 'PAID' %}
+                <button class="btn btn-sm btn-success" disabled>{{ order.status }} </button>
+                <button class="btn btn-sm btn-dark action" id="mark-unpaid">Mark Unpaid</button>
+                {% else %}
+                <button class="btn btn-sm btn-warning action" disabled>{{ order.status }} </button>
+                <button class="btn btn-sm btn-dark" id="mark-paid">Mark Paid</button>
+                {% endif %}
+            </td>
+          </tr>
+        </tbody></table>
+    </div>
+</div>
+
+
+<!-- Action Buttons -->
+<div class="action">
+    <button class="btn btn-dark" id="print">Print</button>
+    <button class="btn btn-dark" id="back">Back</button>
+    {% if user.is_superuser %}<button class="btn btn-danger" id="delete">Delete</button>{% endif %} 
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+    $("#print").click(function() {
+        $(".action").hide();
+        window.print();
+        $(".action").show();
+    });
+    $("#back").click(function() {
+        window.history.back();
+    });
+    $("#mark-paid").click(function() {
+        $.ajax({
+            url: "", 
+            type: 'post',
+            data: {
+                paid: true,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            dataType: 'json',
+            success: function(result){
+                console.log('success')
+                location.reload();
+        }});
+        
+    });
+    $("#mark-unpaid").click(function() {
+        $.ajax({
+            url: "", 
+            type: 'post',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                paid: false,
+            },
+            dataType: 'json',
+            success: function(result){
+                console.log('success')
+                location.reload();
+        }});
+        
+    });
+    
+    $("#delete").click(function() {
+        if (confirm("Want to delete?")) {
+            $.ajax({
+            url: "", 
+            type: 'post',
+            data: {
+                csrfmiddlewaretoken:  '{{ csrf_token }}',
+                delete: true,
+            },
+            dataType: 'json',
+            success: function(result){
+                console.log('order deleted');
+                window.location.href = "{% url 'orders' %}"
+        }});
+        }
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% block title %}Update Profile | Digiden {% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors form %}
+<form method="post" class="form">{% csrf_token %} 
+    {% csrf_token %}
+    <div class="mb-3">{% bootstrap_field form.email %}</div>     
+    <div class="mb-3">{% bootstrap_field form.password1 %}</div>     
+    <div class="mb-3">{% bootstrap_field form.password2 %}</div>     
+    
+    <input type="submit" class="btn btn-dark" value="Update">  
+    <a class="btn btn-dark" href="{% url 'home' %}">Back to Dashboard</a>
+</form> 
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Delete Confirmation | Digiden {% endblock %}
+
+{% block content %}
+<form method="post" class="form">{% csrf_token %} 
+    <p>Are you sure you want to delete "<strong>{{ object }}</strong>"? <br>
+        Your all subitems will be deleted automatically. Think again!
+    </p> 
+    <input type="submit" class="btn btn-danger" value="Confirm">  
+    <input type="submit" class="btn btn-dark" value="Return" onclick="window.history.back(); return false;"> 
+</form> 
+{% endblock %}

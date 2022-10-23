@@ -1,0 +1,322 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% load fontawesome_5 %}
+{% block title %}New Order | DigiDen Sales Point{% endblock %}
+{% block content %} 
+
+
+{% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" auto-close="8000">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+  {% endif %}
+
+<form action="" method="POST" class="form">
+  {% csrf_token %}
+<div class="row mb-3 form-group">
+  <div class="col-auto">
+    <label for="customer" class="form-label" style="font-weight:bold">Customer</label>
+  </div>
+  <div class="col-auto">
+    <select id="customer" name='customer' class="form-select" aria-label="Select Customer" required>
+      <option value="" selected>Open this select menu</option>
+      
+      {% for customer in customers %}
+        <option value="{{ customer.id }}">{{ customer.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <a href="{% url 'new_customer' %}" class="btn btn-sm btn-dark">New Customer</a> 
+  </div>
+  <div class="col text-end">
+    <p id="date" style="font-weight:bold"></p>
+    
+  </div>
+</div>
+<table class="table table-bordered" id="product_info_table">
+    <thead>
+        <tr>
+            <th style="width: 25%;">Product</th>
+            <th style="width: 35%;">Serials</th>
+            <th style="width: 10%;">Rate</th>
+            <th style="width: 10%;">Discount</th>
+            <th style="width: 15%;">Amount</th>
+            <th class="text-center" style="width: 5%;"><button id="add_row" class="btn-sm btn-dark">{% fa5_icon 'plus' %}</button></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr id="row_1">
+            <td style="font-size: small;">
+                <select class="form-control" data-row-id="row_1" id="product_1" name="product[]" style="width:100%;" onchange="getProductData(1)" required>
+                    <option value="">Select Product</option>
+                    {% for product in products %}
+                      <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td style="font-size: smaller;">
+                <select multiple class="form-control" data-row-id="row_1" id="serials_1" name="serials[]" style="width:100%;" onchange="updateQty(1)" required>
+            </select>
+            <input type="hidden" name="qty[]" id="qty_1" class="form-control" value="1" autocomplete="off">
+            </td>
+            <td><input type="text" name="rate[]" id="rate_1" class="form-control form-control-sm" disabled autocomplete="off">
+                <input type="hidden" name="rate_value[]" id="rate_value_1" class="form-control" autocomplete="off"></td>
+            <td><input type="text" name="discount[]" id="discount_1" class="form-control form-control-sm" value="0" onkeyup="subAmount()" autocomplete="off"></td>
+            <td><input type="text" name="amount[]" id="amount_1" class="form-control form-control-sm" disabled autocomplete="off">
+                <input type="hidden" name="amount_value[]" id="amount_value_1" class="form-control" autocomplete="off"></td>
+            <td class="text-center"><button type="button" class="btn btn-default" onclick="removeRow('1')">{% fa5_icon 'times' %}</button></td>
+        </tr>
+    </tbody>
+</table>
+<div class="d-flex justify-content-end">
+  <div class="row mb-3">
+    <div class="col-auto">
+      <label for="gross_amount" class="form-label">Gross Amount</label>
+    </div>
+    <div class="col-auto">
+      <input type="text" class="form-control form-control-sm" id="gross_amount" name="gross_amount" disabled="" autocomplete="off">
+      <input type="hidden" class="form-control" id="gross_amount_value" name="gross_amount_value" autocomplete="off">
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-end">
+  <div class="row mb-3">
+    <div class="col-auto">
+      <label for="total_discount" class="form-label">Total Discount</label>
+    </div>
+    <div class="col-auto">
+      <input type="text" class="form-control form-control-sm" id="total_discount" name="discount" disabled autocomplete="off">
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-end">
+<div class="row mb-3">
+    <div class="col-auto">
+      <label for="net_amount" class="form-label">Net Amount</label>
+    </div>
+    <div class="col-auto">
+      <input type="text" class="form-control form-control-sm" id="net_amount" name="net_amount" disabled="" autocomplete="off">
+      <input type="hidden" class="form-control" id="net_amount_value" name="net_amount_value" autocomplete="off">
+    </div>
+</div>
+</div>
+{% bootstrap_button "Create Order" button_type="submit" button_class="btn-dark" %}
+<span><button type="button" class="btn btn-dark ml-3" onclick="window.history.back();">Back</button></span>
+</form>
+
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+  var base_url = "";
+
+  $(document).ready(function() {
+    $("select").select2();
+  
+    // date functionality
+    var today = new Date();
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var suffix = ""
+    var day = today.getDate()
+    if (day==0) {
+      suffix = "st";
+    } else if (day===1) {
+      suffix = "nd";
+    } else if (day===2) {
+      suffix = "rd"; 
+    } else {
+      suffix = "th"
+    }
+    suffix += " ";
+
+    var date = day + suffix + months[today.getMonth()] + ", " + today.getFullYear();
+    $("#date").text(date);
+    
+    // Add new row in the table 
+    $("#add_row").unbind('click').bind('click', function() {
+      var table = $("#product_info_table");
+      var count_table_tbody_tr = $("#product_info_table tbody tr").length;
+      if (count_table_tbody_tr > 0) {
+        count_table_tbody_tr = parseInt( $("#product_info_table tbody tr:last").attr("id").substring(4));
+      }
+      var row_id = count_table_tbody_tr + 1;
+
+      $.ajax({
+          url: '',
+          type: 'post',
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success:function(json) {
+              console.log(json);
+                var html = `<tr id="row_${row_id}">
+                    <td style="font-size: small;"> 
+                    <select class="form-select"  data-row-id="${row_id}" id="product_${row_id}" name="product[]" style="width:100%;" 
+                    onchange="getProductData(${row_id})">
+                        <option value="">Select Product</option>`;
+                        $.each(json.products, function(index, value) {
+                          html += '<option value="'+value.id+'">'+value.name+'</option>';             
+                        });
+                        
+                      html += `</select></td> 
+                    <td style="font-size: small;">
+                    <select multiple class="form-select" data-row-id="${row_id}" id="serials_${row_id}" name="serials[]" onchange="updateQty(${row_id})" style="width:100%;">
+                    </select>
+                    <input type="hidden" name="qty[]" id="qty_${row_id}" class="form-control" value="1" autocomplete="off">
+                    </td>
+                    <td>
+                      <input type="text" name="rate[]" id="rate_${row_id}" class="form-control form-control-sm" disabled><input type="hidden" name="rate_value[]" id="rate_value_${row_id}" class="form-control">
+                    </td>
+                    <td><input type="text" name="discount[]" id="discount_${row_id}" class="form-control form-control-sm" onkeyup="subAmount()" autocomplete="off"></td>
+                    <td>
+                      <input type="text" name="amount[]" id="amount_${row_id}" class="form-control form-control-sm" disabled>
+                      <input type="hidden" name="amount_value[]" id="amount_value_${row_id}" class="form-control"></td>
+                    <td><button type="button" class="btn btn-default" onclick="removeRow(${row_id})">{% fa5_icon "times" %}</button>
+                    </td></tr>`;
+
+              if(count_table_tbody_tr >= 1) {
+                $("#product_info_table tbody tr:last").after(html);  
+              }
+              else {
+                $("#product_info_table tbody").html(html);
+              }
+
+              $("select").select2();
+
+          }
+        });
+
+      return false;
+    });
+
+  }); // /document
+
+  function updateQty(row) {
+    qty = $("#serials_" + row + " :selected").length;
+    $("#qty_"+row).val(qty);
+    var total = Number($("#rate_value_"+row).val()) * qty; 
+    total = total.toFixed(2);
+    $("#amount_"+row).val(total);
+    $("#amount_value_"+row).val(total);
+    subAmount();
+  }
+
+  function getTotal(row = null) {
+    if(row) {
+      qty = $("#serials_" + row + " :selected").length;
+      var total = Number($("#rate_value_"+row).val()) * qty; 
+      total = total.toFixed(2);
+      $("#amount_"+row).val(total);
+      $("#amount_value_"+row).val(total);
+      
+      subAmount();
+
+    } else {
+      alert('no product !! please refresh the page');
+    }
+  }
+
+  // get the product information from the server
+  function getProductData(row_id)
+  {
+    var product_id = $("#product_"+row_id).val(); 
+    $("#serials_"+row_id).find('option').remove().end(); 
+    if(product_id == "") {
+      $("#rate_"+row_id).val("");
+      $("#rate_value_"+row_id).val("");      
+      $("#amount_"+row_id).val("");
+      $("#amount_value_"+row_id).val("");
+
+    } else {
+      $.ajax({
+        url: `/product-units/${product_id}/`,
+        type: 'post',
+        data: {
+          product_id : product_id,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+        },
+        dataType: 'json',
+        success:function(response) {
+          // add available product units
+          $.each(response.units, function(index, value) {
+              $('#serials_'+row_id).append(`<option value="${value.serial}">${value.serial}</option>`)       
+            });
+          
+          $("#rate_"+row_id).val(response.price);
+          $("#rate_value_"+row_id).val(response.price);
+
+          var total = Number(response.price) * 1;
+          total = total.toFixed(2);
+          $("#amount_"+row_id).val(total);
+          $("#amount_value_"+row_id).val(total);
+          
+          subAmount();
+        } // success
+      }); // ajax function to fetch the product data 
+    }
+  }
+
+  // calculate the total amount of the order
+  function subAmount() {
+    var service_charge = 0;
+    var vat_charge = 0;
+
+    var tableProductLength = $("#product_info_table tbody tr").length;
+    var totalSubAmount = 0;
+    var totalSubDiscount = 0;
+    for(x = 0; x < tableProductLength; x++) {
+      var tr = $("#product_info_table tbody tr")[x];
+      var count = $(tr).attr('id');
+      count = count.substring(4);
+
+      totalSubAmount = Number(totalSubAmount) + Number($("#amount_"+count).val());
+
+      updated_amount = Number($("#amount_"+count).val()) - Number($("#discount_"+count).val());
+      totalSubDiscount = Number(totalSubDiscount) + Number($("#discount_"+count).val());
+      
+    }
+
+    totalSubAmount = totalSubAmount.toFixed(2);
+
+    // sub total
+    $("#gross_amount").val(totalSubAmount);
+    $("#gross_amount_value").val(totalSubAmount);
+    $("#total_discount").val(totalSubDiscount);
+    $("#discount_value").val(totalSubDiscount);
+    
+    // total amount
+    totalAmount = totalSubAmount;
+
+    var discount = $("#total_discount").val();
+    if(discount) {
+      var grandTotal = Number(totalAmount) - Number(discount);
+      grandTotal = grandTotal.toFixed(2);
+      $("#net_amount").val(grandTotal);
+      $("#net_amount_value").val(grandTotal);
+    } else {
+      $("#net_amount").val(totalAmount);
+      $("#net_amount_value").val(totalAmount);
+    } 
+  } 
+
+  function removeRow(tr_id)
+  {
+    $("#product_info_table tbody tr#row_"+tr_id).remove();
+    subAmount();
+  }
+
+  // message allert auto close
+  var alert = $('div.alert[auto-close]');
+  alert.each(function() {
+    var that = $(this);
+    var time_period = that.attr('auto-close');
+    setTimeout(function() {
+      that.alert('close');
+    }, time_period);
+  });
+</script>
+{% endblock %}

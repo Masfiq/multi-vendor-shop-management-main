@@ -1,0 +1,46 @@
+{% extends 'main/base.html' %}
+{% load bootstrap5 %}
+{% block title %}Attributes | DigiDen Sales Point{% endblock %}
+{% block content %} 
+
+{% bootstrap_form_errors attributeform %}
+
+<!-- Add New Store -->
+
+<form action="" method="post" class="form">
+    {% csrf_token %}
+    {% for field in attributeform %}
+    <div class="mb-3">{% bootstrap_field field %}</div>     
+    {% endfor %}
+    {% bootstrap_button "Save" button_type="submit" button_class="btn-dark" %}
+</form>
+
+<!-- Store List -->
+
+<div class="row my-5">
+    <div class="col">
+        <h2>Attributes <span class="float-end"></h2>
+        
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Attribute</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attribute in attributes %}
+                <tr>
+                    <td>{{ category.name }}</td>
+                    <td class="text-center"><a class="btn btn-sm btn-dark">view</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="text-center">No attribute found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}
